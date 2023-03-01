@@ -1,37 +1,26 @@
-from typing import Union
-from pydantic import BaseModel
+from __future__ import annotations
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 
-from src.db import Connection
-from src.domain.member.member_entity import Member
+from fastapi.responses import JSONResponse
+
+from src.domain.member.data.dto import MemberCreateDto
+from src.domain.member.usecase.member_create import MemberCreate
 
 member_router = APIRouter(
     prefix="/members",
     tags=["members"],
 )
 
-in_memory_db = {}
 
+@member_router.post("/", description="사용자 등록하기")
+def register_member(member_create_dto: MemberCreateDto):
+    MemberCreate(member_create_dto=member_create_dto) \
+        .create_member()
 
-class MemberRegister(BaseModel):
-    name: str
-    age: int
-
-
-@member_router.get("/")
-def get_member():
-    member = Member(age=12, name="kojian")
-
-    conn = Connection()
-    conn.session.add(member)
-    conn.session.flush(member)
-    conn.session.commit()
-
-    return in_memory_db
-
-
-@member_router.post("/")
-def register_member(data: MemberRegister):
-    in_memory_db[data.name] = data.age
-    return in_memory_db
+    return JSONResponse(
+        status_code=201,
+        content={
+            "msg": "member create success"
+        }
+    )
