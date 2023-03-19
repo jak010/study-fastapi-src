@@ -25,5 +25,6 @@ class MemberRepositoy(SqlAlchemyRepositoy):
 
         return query.one_or_none()
 
-    def add(self, member_entity: MemberEntity):
+    def save(self, member_entity: MemberEntity):
         self.uow.session.add(member_entity)
+        self.uow.session.commit()
