@@ -16,6 +16,14 @@ class MemberEntity(AbstractEntity):
             "reference_id": self.reference_id
         })
 
+    def to_dict(self):
+        return {
+            "reference_id": self.reference_id,
+            "email": self.email,
+            "name": self.name,
+            "age": self.age
+        }
+
     def __str__(self):
         return f"Member(\n" \
                f" reference_id={self.reference_id},\n" \

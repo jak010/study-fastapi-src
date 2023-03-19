@@ -9,7 +9,7 @@ from src.seedwork.repository import SqlAlchemyRepositoy
 
 class MemberRepositoy(SqlAlchemyRepositoy):
 
-    def get_by_id(self, reference_id: int) -> Optional[MemberEntity]:
+    def get_by_id(self, reference_id: int) -> MemberEntity:
         query = self.uow.session.query(MemberEntity) \
             .filter(MemberEntity.reference_id == reference_id)
         member = query.one_or_none()
@@ -17,4 +17,13 @@ class MemberRepositoy(SqlAlchemyRepositoy):
         if member:
             return member
 
-        raise NotExistEntity("NotExsit MEMBER")
+        raise NotExistEntity("NotExsit Member")
+
+    def find_by_id(self, reference_id: int) -> Optional[MemberEntity]:
+        query = self.uow.session.query(MemberEntity) \
+            .filter(MemberEntity.reference_id == reference_id)
+
+        return query.one_or_none()
+
+    def add(self, member_entity: MemberEntity):
+        self.uow.session.add(member_entity)

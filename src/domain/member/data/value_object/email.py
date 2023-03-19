@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 
 
@@ -10,14 +12,21 @@ class EmailVo:
     domain: str = ""
 
     def __post_init__(self):
-        self._split_part()
+        self._split_part(email=self.email)
         self._split_domain()
 
         if self.host not in ["naver", "daum", "gmail"]:
-            raise ValueError("Not Allowed Email Host")
+            raise Exception("Not Allowed Email Host")
 
-    def _split_part(self):
-        self.local_part, self.domain_part = self.email.split("@")
+    def _split_part(self, email):
+        local_part, domain_part = email.split("@")
+        self.local_part = local_part
+        self.domain_part = domain_part
 
     def _split_domain(self):
-        self.host, self.domain = self.domain_part.split(".")
+        host, domain = self.domain_part.split(".")
+        self.host = host
+        self.domain = domain
+
+    def get_fqdn(self):
+        return self.email
