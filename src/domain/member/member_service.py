@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from src.domain.member.data.dto import MemberCreateDto
-from src.domain.member.entity.member_entity import MemberEntity
-from src.domain.member.repositoy import MemberRepositoy
+from src.domain.member.member_entity import MemberEntity
+from src.domain.member.member_repositoy import MemberRepositoy
 
 
 class MemberService:

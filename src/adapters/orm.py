@@ -16,6 +16,6 @@ t_member = Table(
 
 
 def start_mappers():
-    from src.domain.member.entity.member_entity import MemberEntity
+    from src.domain.member.member_entity import MemberEntity
 
     mapper_registry.map_imperatively(MemberEntity, t_member)

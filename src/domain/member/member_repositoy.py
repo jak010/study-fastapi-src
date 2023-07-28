@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from src.domain.member.entity.member_entity import MemberEntity
+from src.domain.member.member_entity import MemberEntity
 from src.seedwork.entity import NotExistEntity
 from src.seedwork.repository import SqlAlchemyRepositoy
 
