@@ -1,21 +1,19 @@
 from __future__ import annotations
 
-from src.domain.member.data.dto import MemberCreateDto
 from src.domain.member.member_entity import MemberEntity
 from src.domain.member.member_repositoy import MemberRepositoy
 
 
 class MemberService:
+    member_repository = MemberRepositoy()
 
-    def __init__(self):
-        self.repository = MemberRepositoy()
+    def find_by_member(self, member_id: str):
+        z = self.member_repository.find_by_id(member_id=member_id)
+        return z
 
-    def find_by_member(self, reference_id: int):
-        return self.repository.find_by_id(reference_id=reference_id)
-
-    def create_member(self, member_create_dto: MemberCreateDto):
-        self.repository.save(MemberEntity(
-            email=member_create_dto.email,
-            age=member_create_dto.age,
-            name=member_create_dto.name
-        ))
+    # def create_member(self, email, age, name):
+    #     self.repository.save(MemberEntity(
+    #         email=email,
+    #         age=age,
+    #         name=name
+    #     ))

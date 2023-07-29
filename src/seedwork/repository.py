@@ -3,11 +3,11 @@ from __future__ import annotations
 import abc
 
 from src.seedwork.entity import AbstractEntity
-from src.seedwork.uow import AbstractUnitofWork, SqlAlchemyUnitOfWork
+from src.seedwork.uow import AbstractUoW, SqlAlchemyUnitOfWork, SqlAlchemyQueryUow
 
 
 class AbstarctRepositoy(metaclass=abc.ABCMeta):
-    uow: AbstractUnitofWork
+    uow: SqlAlchemyUnitOfWork
 
     @abc.abstractmethod
     def add(self, entity: AbstractEntity):

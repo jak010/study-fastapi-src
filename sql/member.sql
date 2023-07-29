@@ -1,5 +1,5 @@
 CREATE TABLE `member` (
-  `reference_id` int(1) unsigned NOT NULL AUTO_INCREMENT,
+  `member_id` int(1) unsigned NOT NULL AUTO_INCREMENT,
   `email` varchar(36) NOT NULL,
   `name` varchar(12) NOT NULL,
   `age` smallint(1) unsigned DEFAULT '0',

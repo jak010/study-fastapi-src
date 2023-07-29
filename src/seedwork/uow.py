@@ -3,13 +3,14 @@ from __future__ import annotations
 import abc
 
 from functools import cached_property
-
 from src.adapters.db import get_session
 
+import sqlalchemy
 
-class AbstractUnitofWork(metaclass=abc.ABCMeta):
 
-    def __enter__(self) -> AbstractUnitofWork:
+class AbstractUoW(metaclass=abc.ABCMeta):
+
+    def __enter__(self, *args, **kwargs) -> AbstractUoW:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -31,7 +32,7 @@ class AbstractUnitofWork(metaclass=abc.ABCMeta):
     def session(self): ...
 
 
-class SqlAlchemyUnitOfWork(AbstractUnitofWork):
+class SqlAlchemyUnitOfWork(AbstractUoW):
 
     def __init__(self):
         self._session = get_session()
@@ -42,6 +43,34 @@ class SqlAlchemyUnitOfWork(AbstractUnitofWork):
 
     def __enter__(self):
         return super(SqlAlchemyUnitOfWork, self).__enter__()
+
+    def __exit__(self, *args):
+        self._session.commit()
+        self._session.close()
+
+    def _commit(self):
+        self._session.commit()
+
+    def rollback(self):
+        self._session.rollback()
+
+
+class SqlAlchemyQueryUow(AbstractUoW):
+    def __init__(self, sql, kwargs):
+        self.sql = sql
+        self.kwargs = kwargs
+        self._session = get_session()
+
+    @cached_property
+    def session(self):
+        return self._session
+
+    def __enter__(self) -> sqlalchemy.engine.result.Result:
+        from sqlalchemy import text
+
+        result = self.session.execute(text(self.sql), self.kwargs)
+
+        return result
 
     def __exit__(self, *args):
         self._session.commit()

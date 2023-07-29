@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-from fastapi import Depends
+from fastapi import Depends, Body
 from fastapi.responses import JSONResponse
 from fastapi_utils.cbv import cbv
 from fastapi_utils.inferring_router import InferringRouter
 
-from src.domain.member.data.dto import MemberCreateDto
 from src.domain.member.member_service import MemberService
 
 member_router = InferringRouter(tags=['Member'])
@@ -13,22 +12,31 @@ member_router = InferringRouter(tags=['Member'])
 
 @cbv(member_router)
 class MemberController:
+    member_service: MemberService = Depends(MemberService)
 
     @member_router.get("/member", description="멤버 목록조회")
     def list(self):
         return JSONResponse(status_code=200, content={})
 
     @member_router.post("/member", description="멤버 생성")
-    def register(self,
-                 member_create_dto: MemberCreateDto,
-                 member_service: MemberService = Depends(MemberService)
-                 ):
-        try:
-            member = member_service.create_member(member_create_dto)
-        except Exception:
-            return JSONResponse(status_code=400, content={'msg': "Member Created Failure"})
+    def register(
+            self,
+            member_id: str = Body(embed=True)
+            # name: str = Body(embed=True, min_length=1, max_length=25),
+            # age: int = Body(embed=True),
+            # email: str = Body(embed=True, min_length=1, max_length=25)
+    ):
+        member = self.member_service.find_by_member(
+            member_id=member_id
+        )
 
-        return JSONResponse(status_code=200, content={'items': member})
+        # try:
+        #     member = self.member_service.create_member(member_create_dto)
+        # except Exception:
+        #     return JSONResponse(status_code=400, content={'msg': "Member Created Failure"})
+
+        # return JSONResponse(status_code=200, content={'items': member})
+        return JSONResponse(status_code=200, content={})
 
 
 @cbv(member_router)
