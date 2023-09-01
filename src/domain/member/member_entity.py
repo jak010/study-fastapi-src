@@ -1,9 +1,5 @@
 from __future__ import annotations
 
-import json
-
-# from src.seedwork.entity import AbstractEntity
-
 from dataclasses import dataclass
 from typing import Optional
 

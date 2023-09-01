@@ -1,64 +1,61 @@
-# from __future__ import annotations
-#
-# from fastapi import Depends, Body
-# from fastapi.responses import JSONResponse
-# from fastapi_utils.cbv import cbv
-# from fastapi_utils.inferring_router import InferringRouter
-#
-# from src.domain.member.member_service import MemberService
-#
-# member_router = InferringRouter(tags=['Member'])
-#
-#
-# @cbv(member_router)
-# class MemberController:
-#     member_service: MemberService = Depends(MemberService)
-#
-#     @member_router.get("/member", description="멤버 목록조회")
-#     def list(self):
-#         return JSONResponse(status_code=200, content={})
-#
-#     @member_router.post("/member", description="멤버 생성")
-#     def register(
-#             self,
-#             member_id: str = Body(embed=True)
-#             # name: str = Body(embed=True, min_length=1, max_length=25),
-#             # age: int = Body(embed=True),
-#             # email: str = Body(embed=True, min_length=1, max_length=25)
-#     ):
-#         member = self.member_service.find_by_member(
-#             member_id=member_id
-#         )
-#
-#         # try:
-#         #     member = self.member_service.create_member(member_create_dto)
-#         # except Exception:
-#         #     return JSONResponse(status_code=400, content={'msg': "Member Created Failure"})
-#
-#         # return JSONResponse(status_code=200, content={'items': member})
-#         return JSONResponse(status_code=200, content={})
-#
-#
-# @cbv(member_router)
-# class MemberDetailController:
-#
-#     @member_router.get("/member/{member_id}", description="사용자 상세 조회")
-#     def retreieve(
-#             self,
-#             member_id: int,
-#             member_service: MemberService = Depends(MemberService)
-#     ):
-#         member = member_service.find_by_member(reference_id=member_id)
-#
-#         if not member:
-#             return JSONResponse(status_code=404, content={})
-#
-#         return JSONResponse(status_code=200, content=member.to_dict())
-#
-#     @member_router.put("/member/{member_id}", description="사용자 업데이트")
-#     def update(self):
-#         return JSONResponse(status_code=200, content={})
-#
-#     @member_router.delete("/member/{member_id}", description="사용자 삭제하기")
-#     def delete(self):
-#         return JSONResponse(status_code=200, content={})
+from __future__ import annotations
+
+import dataclasses
+from typing import TypeVar, Generic, TypedDict, Union, Optional, Dict, Mapping
+from fastapi.routing import APIRouter
+from fastapi.responses import JSONResponse
+from pydantic.generics import GenericModel
+from fastapi import Depends
+
+from src.service_layer.usecase import MemberUseCase
+
+member_router = APIRouter(tags=['Member'])
+
+T = TypeVar("T")
+
+
+class ResponseBaseModel(GenericModel, Generic[T]):
+    status: int = 200
+    code: int = 20000
+    data: T
+
+    class Config:
+        @staticmethod
+        def schema_extra(schema, model):
+            """
+            :param schema:
+                {'title': 'MemberEntity', 'type': 'object', 'properties': {'age': {'title': 'Age', 'type': 'integer'}, 'name': {'title': 'Name', 'type': 'string'}, 'password': {'title': 'Password', 'type': 'string'}, 'profile': {'$ref': '#/components/schemas/MemberProfile'}}, 'required': ['age', 'name', 'password']} <class 'src.controller.member.MemberEntity'>
+            """
+
+            schema_properties = schema.get("properties", {})
+
+            hidden_fields = []
+            for k, v in schema_properties.items():
+                if "password" == k:
+                    hidden_fields.append(k)
+
+            for field in hidden_fields:
+                if field in schema_properties:
+                    del schema["properties"][field]
+
+
+@dataclasses.dataclass
+class MemberEntity:
+    age: int
+    name: str
+    password: str
+    profile: Optional[MemberProfile] = dataclasses.field(default=None)
+
+
+@dataclasses.dataclass
+class MemberProfile:
+    description: str
+
+
+@member_router.get(path="/member")
+async def member_retreieve(
+        usecase: MemberUseCase = Depends(MemberUseCase)
+) -> ResponseBaseModel:
+    print(usecase.find_member())
+    return ResponseBaseModel(data={})
+    # return ResponseBaseModel[MemberEntity](data=MemberEntity(age=999, name="jako"))
