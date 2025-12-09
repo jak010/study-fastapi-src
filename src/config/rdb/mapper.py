@@ -19,7 +19,7 @@ def start_mappers():
                 primaryjoin=(
                     'member.c.member_id == foreign(member_profile.c.member_id)'
                 ),
-                lazy='joined',
+                lazy='select',
                 uselist=False
             )
         }
