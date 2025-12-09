@@ -1,9 +1,9 @@
 from dependency_injector import providers, containers
 
-from src.adapters.repository.member_repository import MemberRepoitory
+from src.infrastructure.member_repository import MemberRepository
 
 
 class RepositoryConatiner(containers.DeclarativeContainer):
     session = providers.Dependency()
 
-    member_repository = providers.Factory(MemberRepoitory, session)
+    member_repository = providers.Singleton(MemberRepository, session=session)

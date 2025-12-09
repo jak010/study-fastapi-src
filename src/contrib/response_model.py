@@ -1,13 +1,9 @@
 from __future__ import annotations
 
-import dataclasses
-from typing import TypeVar, Generic, TypedDict, Union, Optional, Dict, Mapping
-from fastapi.routing import APIRouter
-from fastapi.responses import JSONResponse
-from pydantic.generics import GenericModel
-from fastapi import Depends
+from typing import TypeVar, Generic
 
-from src.service_layer.usecase import MemberUseCase
+from fastapi.routing import APIRouter
+from pydantic.generics import GenericModel
 
 member_router = APIRouter(tags=['Member'])
 
@@ -37,25 +33,3 @@ class ResponseBaseModel(GenericModel, Generic[T]):
             for field in hidden_fields:
                 if field in schema_properties:
                     del schema["properties"][field]
-
-
-@dataclasses.dataclass
-class MemberEntity:
-    age: int
-    name: str
-    password: str
-    profile: Optional[MemberProfile] = dataclasses.field(default=None)
-
-
-@dataclasses.dataclass
-class MemberProfile:
-    description: str
-
-
-@member_router.get(path="/member")
-async def member_retreieve(
-        usecase: MemberUseCase = Depends(MemberUseCase)
-) -> ResponseBaseModel:
-    print(usecase.find_member())
-    return ResponseBaseModel(data={})
-    # return ResponseBaseModel[MemberEntity](data=MemberEntity(age=999, name="jako"))
