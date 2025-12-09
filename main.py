@@ -4,7 +4,7 @@ from fastapi import FastAPI
 
 from src.config.ioc import RepositoryConatiner
 from src.config.rdb.driver import get_session
-from src.config.rdb.orm import start_mappers
+from src.config.rdb.mapper import start_mappers
 
 
 def create_app() -> FastAPI:

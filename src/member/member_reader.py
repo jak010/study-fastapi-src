@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 
-from src.member.member_entity import MemberEntity
+from src.member.entity.member_entity import MemberEntity
 
 
 class MemberReader(ABCMeta):
