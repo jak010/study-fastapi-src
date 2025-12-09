@@ -16,8 +16,6 @@ class MemberRepository(MemberReader):
         query = self.session.query(MemberEntity).filter_by(member_id=member_id)
 
         if with_profile:
-            query = query.options(
-                joinedload(MemberEntity.member_profile)
-            )
+            query = query.options(joinedload(MemberEntity.member_profile))
 
         return query.first()

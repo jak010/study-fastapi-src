@@ -12,8 +12,6 @@ class MemberService:
 
     @Transactional
     def get_member(self, member_id):
-
         member = self.member_reader.find_by_member_id_with(member_id=member_id, with_profile=True)
-
 
         return member
