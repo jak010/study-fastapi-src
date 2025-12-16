@@ -13,4 +13,4 @@ class MemberEntity:
     name: str
     age: str
 
-    member_profile: MemberProfileEntity = None
+    # member_profile: MemberProfileEntity = None
