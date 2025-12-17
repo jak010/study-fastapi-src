@@ -1,13 +1,15 @@
+import asyncio
 from functools import lru_cache
 
-import aiomysql
 from sqlalchemy import MetaData
+from sqlalchemy import URL
+from sqlalchemy.event.base import slots_dispatcher
 from sqlalchemy.ext.asyncio import (
     create_async_engine,
     async_sessionmaker,
-    AsyncSession
+    AsyncSession,
+    async_scoped_session
 )
-from sqlalchemy import URL
 
 
 def get_url() -> URL:
@@ -36,14 +38,18 @@ def crete_engine():
     )
 
 
-async def get_db() -> AsyncSession:
-    engine = crete_engine()
-
-    async_session = async_sessionmaker(
+async def get_db(engine) -> AsyncSession:
+    _session = async_sessionmaker(
         engine,
         autoflush=False,
         autocommit=False,
-        class_=AsyncSession
+        class_=AsyncSession,
+        expire_on_commit=False
+    )
+
+    async_session = async_scoped_session(
+        session_factory=_session,
+        scopefunc=asyncio.current_task
     )
 
     async with async_session() as session:

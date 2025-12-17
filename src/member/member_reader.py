@@ -15,3 +15,9 @@ class MemberReader(ABC):
 
         """
         ...
+
+
+class MemberWriter(ABC):
+
+    @abstractmethod
+    async def insert(self, name, email): ...

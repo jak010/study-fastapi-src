@@ -1,22 +1,26 @@
-from sqlalchemy import text
-
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import text, insert
 
 from src.member.entity.member_entity import MemberEntity
-from src.member.member_reader import MemberReader
+from src.member.member_reader import MemberReader, MemberWriter
+from .abstract_repository import AbstractRepository
 
 
-class AsyncMemberRepository(MemberReader):
-
-    def __init__(self, async_session):
-        self.async_session: AsyncSession = async_session
+class AsyncMemberRepository(AbstractRepository, MemberReader, MemberWriter):
 
     def find_by_member_id_with(self, member_id, with_profile) -> MemberEntity:
         pass
 
     async def find_by_member_id(self, member_id) -> MemberEntity:
-        sql = text("select * from member where member_id=1;")
+        sql = text("select * from member where member_id = :member_id;")
+        params = {
+            "member_id": member_id
+        }
 
-        result = await self.async_session.execute(sql)
+        result = await self.fetchone(sql, params)
 
-        return result.mappings().fetchone()
+        return result
+
+    async def insert(self, name, email) -> MemberEntity:
+        sql = insert(MemberEntity).values(name=name, email=email)
+
+        await self.execute(sql)
