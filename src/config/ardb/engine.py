@@ -3,7 +3,6 @@ from functools import lru_cache
 
 from sqlalchemy import MetaData
 from sqlalchemy import URL
-from sqlalchemy.event.base import slots_dispatcher
 from sqlalchemy.ext.asyncio import (
     create_async_engine,
     async_sessionmaker,
@@ -34,30 +33,25 @@ def crete_engine():
         pool_size=10,
         max_overflow=20,
         pool_timeout=30,
-        pool_recycle=1800
+        pool_recycle=1800,
+        pool_pre_ping=True
+
     )
 
 
-async def get_db(engine) -> AsyncSession:
+def session_factory(engine) -> async_scoped_session:
     _session = async_sessionmaker(
         engine,
         autoflush=False,
         autocommit=False,
         class_=AsyncSession,
-        expire_on_commit=False
+        expire_on_commit=False,
+
     )
 
-    async_session = async_scoped_session(
+    _async_scoped_session = async_scoped_session(
         session_factory=_session,
         scopefunc=asyncio.current_task
     )
 
-    async with async_session() as session:
-        yield session
-
-
-class DBProvider:
-    """
-    https://python-dependency-injector.ets-labs.org/providers/async.html
-    """
-    ...
+    return _async_scoped_session

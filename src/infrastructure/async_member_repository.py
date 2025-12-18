@@ -16,11 +16,12 @@ class AsyncMemberRepository(AbstractRepository, MemberReader, MemberWriter):
             "member_id": member_id
         }
 
-        result = await self.fetchone(sql, params)
+        result = await self.session().execute(sql, params)
 
-        return result
+        return MemberEntity.of(**result.mappings().fetchone())
 
     async def insert(self, name, email) -> MemberEntity:
         sql = insert(MemberEntity).values(name=name, email=email)
 
-        await self.execute(sql)
+        r = await self.session().execute(sql)
+        return r

@@ -3,6 +3,7 @@ from __future__ import annotations
 from fastapi import FastAPI
 
 from src.config.ioc import RepositoryConatiner, AsyncContainer, ServiceContainer
+from src.config.middlewares import SessionMiddleware
 from src.config.rdb.driver import get_session
 from src.config.rdb.mapper import start_mappers
 from src.member.member_controller import member_router
@@ -24,5 +25,7 @@ def create_app() -> FastAPI:
 
     # Controller
     app.include_router(member_router)
+
+    app.add_middleware(SessionMiddleware)
 
     return app

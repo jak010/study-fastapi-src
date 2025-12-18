@@ -1,36 +1,48 @@
 from dependency_injector.wiring import Provide, inject
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, async_scoped_session
+from typing_extensions import assert_never
 
-from src.config.ioc import AsyncContainer, AsyncSessionProvider
+from src.config.ioc import AsyncContainer
+from src.config.util import AsyncSessionContext
 
 
 class AsyncTransactional:
 
     def __init__(self):
-        self.s = AsyncSessionProvider.registry()
+        self.session_manager = None
 
     @inject
-    async def session_factory(
+    async def get_session(
             self,
-            async_session: AsyncSession = Provide[AsyncContainer.async_session]
+            async_session: AsyncSession = Provide[AsyncContainer.async_session],
     ):
         return async_session
+
+    @inject
+    def get_engine(
+            self,
+            async_engine: AsyncSession = Provide[AsyncContainer.async_engine],
+    ):
+        return async_engine
 
     def __call__(self, func):
         async def inner(*args, **kwargs):
             print("BEFORE")
 
-            session = await self.session_factory()
+            async_session: async_scoped_session = AsyncSessionContext.get()
 
-            await self.s.add(session)
+            async with async_session.begin():
+                print("TRANSACTION-START")
+                r = await func(*args, **kwargs)
 
-            r = await func(*args, **kwargs)
+                await async_session.commit()
 
-            await session.commit()
-            await session.close()
+            await async_session.close()
+
+            print("TRANSACTION-COMMIT")
 
             print("AFTER")
-            r = 1
+
             return r
 
         return inner
