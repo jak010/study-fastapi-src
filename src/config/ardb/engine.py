@@ -29,7 +29,7 @@ meta = MetaData()
 def crete_engine():
     return create_async_engine(
         get_url(),
-        echo=False,
+        echo=True,
         pool_size=30,
         max_overflow=10,
         pool_timeout=30,

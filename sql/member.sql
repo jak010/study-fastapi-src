@@ -10,6 +10,7 @@ CREATE TABLE `member` (
 CREATE TABLE `member_profile` (
   `member_id` int(1) unsigned NOT NULL,
   `phone` varchar(20) DEFAULT NULL,
+  `hit` int(1) unsigned DEFAULT 0,
   `birth_date` date DEFAULT NULL,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

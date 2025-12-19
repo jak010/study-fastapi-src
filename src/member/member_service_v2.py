@@ -24,3 +24,11 @@ class MemberServiceV2:
         r2 = await self.member_profile_reposiotry.find_member_profile_by_member_id(r.member_id)
 
         return 1
+
+    @AsyncTransactional()
+    async def update_hit(self, member_id):
+        r = await self.repository.find_by_member_id(member_id)
+
+        r2 = await self.member_profile_reposiotry.increment_hit(r.member_id)
+
+        return r

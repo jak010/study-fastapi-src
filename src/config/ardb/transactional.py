@@ -28,12 +28,11 @@ class AsyncTransactional:
     def __call__(self, func):
         async def inner(*args, **kwargs):
             async_session: async_scoped_session = AsyncSessionContext.get()
+
             async with async_session.begin():
                 r = await func(*args, **kwargs)
 
-                await async_session.commit()
-
-            await async_session.close()
+            await async_session.remove()
 
             return r
 

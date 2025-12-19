@@ -19,3 +19,15 @@ async def member_retreieve(
     r = await service.get_member_v2(member_id=1)
 
     return ResponseBaseModel(data={})
+
+
+@member_router.post(path="/member-up")
+@inject
+async def member_retreieve(
+        service: MemberServiceV2 = Depends(
+            Provide[ServiceContainer.member_service]
+        ),
+) -> ResponseBaseModel:
+    r = await service.update_hit(member_id=1)
+
+    return ResponseBaseModel(data={})

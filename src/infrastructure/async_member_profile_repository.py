@@ -1,3 +1,5 @@
+from typing import NoReturn
+
 from sqlalchemy import text
 
 from src.member.entity.member_profile import MemberProfileEntity
@@ -20,3 +22,18 @@ class AsyncMemberProfileRepository(AbstractRepository):
         result = await self.session().execute(sql, params)
 
         return MemberProfileEntity.of(**result.mappings().fetchone())
+
+    async def increment_hit(self, member_id) -> NoReturn:
+        sql = text(
+            """
+            UPDATE fastapi.member_profile
+            SET hit = hit+1 
+            WHERE member_id= :member_id; 
+            """
+        )
+
+        params = {
+            "member_id": member_id
+        }
+
+        await self.session().execute(sql, params)
