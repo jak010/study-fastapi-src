@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import uuid
 from typing import TYPE_CHECKING
 
 from src.config.ardb.transactional import AsyncTransactional
+from src.member.exception import MemberNotFound
 
 if TYPE_CHECKING:
     from src.infrastructure.async_member_repository import AsyncMemberRepository
@@ -19,16 +19,19 @@ class MemberServiceV2:
 
     @AsyncTransactional()
     async def get_member_v2(self, member_id):
-        r = await self.repository.find_by_member_id(member_id)
+        member = await self.repository.find_by_member_id(member_id, with_profile=True)
+        if member is None:
+            raise MemberNotFound()
 
-        r2 = await self.member_profile_reposiotry.find_member_profile_by_member_id(r.member_id)
+        print(dir(member))
+        print(await member.member_profile)
 
-        return 1
+        return member
 
     @AsyncTransactional()
     async def update_hit(self, member_id):
-        r = await self.repository.find_by_member_id(member_id)
+        member = await self.repository.find_by_member_id(member_id)
+        if member is None:
+            raise MemberNotFound()
 
-        r2 = await self.member_profile_reposiotry.increment_hit(r.member_id)
-
-        return r
+        await self.member_profile_reposiotry.increment_hit(member.member_id)

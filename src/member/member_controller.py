@@ -1,5 +1,5 @@
 from dependency_injector.wiring import Provide, inject
-from fastapi import Depends
+from fastapi import Depends, Path
 from fastapi.routing import APIRouter
 
 from src.config.ioc import RepositoryConatiner, ServiceContainer
@@ -21,13 +21,14 @@ async def member_retreieve(
     return ResponseBaseModel(data={})
 
 
-@member_router.post(path="/member-up")
+@member_router.post(path="/member/{member_id}")
 @inject
 async def member_retreieve(
+        member_id =  Path(),
         service: MemberServiceV2 = Depends(
             Provide[ServiceContainer.member_service]
         ),
 ) -> ResponseBaseModel:
-    r = await service.update_hit(member_id=1)
+    r = await service.update_hit(member_id=member_id)
 
     return ResponseBaseModel(data={})
