@@ -22,6 +22,5 @@ class MemberServiceV2:
         r = await self.repository.find_by_member_id(member_id)
 
         r2 = await self.member_profile_reposiotry.find_member_profile_by_member_id(r.member_id)
-        print(r,r2)
 
         return 1

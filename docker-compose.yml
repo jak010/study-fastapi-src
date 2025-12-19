@@ -1,15 +1,52 @@
-version: '3'
+version: "3.8"
+
 services:
   local_db:
     image: mysql:5.7-debian
-    platform: linux/amd64 # mac에서 docker를 사용할 경우 이 옵션은 반드시 활성화 되어야 합니다.
-    ports:
-      - "9901:3306"
-    expose:
-      - "9901"
+    platform: linux/amd64
+    container_name: local_db
     environment:
       MYSQL_ROOT_PASSWORD: 1234
       MYSQL_DATABASE: fastapi
+      MYSQL_ROOT_HOST: "%"
+    ports:
+      - "9901:3306"
     command:
-      - --character-set-server=utf8
-      - --collation-server=utf8_general_ci
+      - --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p1234"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  mysql_exporter:
+    image: prom/mysqld-exporter:v0.15.0
+    container_name: mysql_exporter
+    command:
+      - "--mysqld.address=local_db:3306"
+      - "--mysqld.username=root"
+    environment:
+      MYSQLD_EXPORTER_PASSWORD: 1234
+    ports:
+      - "9104:9104"
+    depends_on:
+      local_db:
+        condition: service_healthy
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    depends_on:
+      - mysql_exporter
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
