@@ -1,30 +1,25 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Tuple
 
 from src.config.ardb.transactional import AsyncTransactional
+from src.member.entity import MemberProfileEntity, MemberEntity
 from src.member.exception import MemberNotFound
 
 if TYPE_CHECKING:
     from src.infrastructure.async_member_repository import AsyncMemberRepository
-    from src.infrastructure.async_member_profile_repository import AsyncMemberProfileRepository
 
 
-class MemberServiceV2:
-    repository: AsyncMemberRepository
+class MemberService:
 
-    def __init__(self, member_repository, member_profile_repo):
+    def __init__(self, member_repository):
         self.repository: AsyncMemberRepository = member_repository
-        self.member_profile_reposiotry: AsyncMemberProfileRepository = member_profile_repo
 
     @AsyncTransactional()
-    async def get_member_v2(self, member_id):
-        member = await self.repository.find_by_member_id(member_id, with_profile=True)
+    async def get_member_v2(self, member_id) -> MemberEntity:
+        member = await self.repository.find_by_member_with_profile(member_id=member_id)
         if member is None:
             raise MemberNotFound()
-
-        print(dir(member))
-        print(await member.member_profile)
 
         return member
 
@@ -33,5 +28,3 @@ class MemberServiceV2:
         member = await self.repository.find_by_member_id(member_id)
         if member is None:
             raise MemberNotFound()
-
-        await self.member_profile_reposiotry.increment_hit(member.member_id)

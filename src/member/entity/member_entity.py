@@ -13,7 +13,8 @@ class MemberEntity:
     name: str
     age: str
 
-    # member_profile: MemberProfileEntity = None
+    # relation
+    member_profile: MemberProfileEntity = None
 
     @classmethod
     def of(cls, member_id=None, email=None, name=None, age=None):

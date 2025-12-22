@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Optional
 
 
@@ -9,7 +10,7 @@ class MemberProfileEntity:
     member_id: int
     phone: str = None
     hit: int = None
-    birth_date: str = None
+    birth_date: datetime = None
     created_at: str = None
     updated_at: str = None
 

@@ -1,33 +1,35 @@
 from typing import Optional
 
-from sqlalchemy import insert
+from sqlalchemy import insert, ChunkedIteratorResult
 from sqlalchemy import select
+from sqlalchemy.orm import joinedload
 
 from src.member.entity.member_entity import MemberEntity
-from src.member.member_reader import MemberReader, MemberWriter
+from src.member.i_member_store import MemberReader, MemberWriter
 from .abstract_repository import AbstractRepository
-from ..member.entity import MemberProfileEntity
 
 
 class AsyncMemberRepository(AbstractRepository, MemberReader, MemberWriter):
 
-    def find_by_member_id_with(self, member_id, with_profile) -> MemberEntity:
-        pass
-
-    async def find_by_member_id(self, member_id, with_profile=False) -> Optional[MemberEntity]:
-        tables = [MemberEntity]
-
-        if with_profile:
-            tables.append(MemberProfileEntity)
-
-        query = select(*tables) \
-            .outerjoin(MemberProfileEntity, MemberProfileEntity.member_id == MemberEntity.member_id) \
+    async def find_by_member_id(self, member_id) -> MemberEntity:
+        query = select(MemberEntity) \
             .where(MemberEntity.member_id == member_id)
 
-        result = await self.session().execute(query)
-        member, member_profile = result.first()  # TODO, 251219 : 조치하기
+        result = await self.session().exeucte(query)
 
-        return member  # TODO, 251219 : 조치하기
+        return result.scalar.one()
+
+    async def find_by_member_with_profile(
+            self,
+            member_id
+    ) -> Optional[MemberEntity]:
+        query = select(MemberEntity) \
+            .options(joinedload(MemberEntity.member_profile)) \
+            .where(MemberEntity.member_id == member_id)
+
+        result: ChunkedIteratorResult = await self.session().execute(query)
+
+        return result.scalar()
 
     async def insert(self, name, email) -> MemberEntity:
         sql = insert(MemberEntity).values(name=name, email=email)

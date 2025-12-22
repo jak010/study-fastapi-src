@@ -9,7 +9,7 @@ class MemberReader(ABC):
     def find_by_member_id(self, member_id) -> MemberEntity: ...
 
     @abstractmethod
-    def find_by_member_id_with(self, member_id, with_profile) -> MemberEntity:
+    def find_by_member_with_profile(self, member_id) -> MemberEntity:
         """
         Member와 연계된 MemberProfile을 선택적으로 join 하기
 
