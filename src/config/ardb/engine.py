@@ -7,8 +7,10 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
     async_sessionmaker,
     AsyncSession,
-    async_scoped_session
+    async_scoped_session, AsyncEngine
 )
+
+from src.config.util import AsyncSessionContext
 
 
 def get_url() -> URL:
@@ -26,7 +28,7 @@ meta = MetaData()
 
 
 @lru_cache(maxsize=1)
-def crete_engine():
+def crete_engine() -> AsyncEngine:
     return create_async_engine(
         get_url(),
         echo=True,
@@ -44,8 +46,7 @@ def session_factory(engine) -> async_scoped_session:
         autoflush=False,
         autocommit=False,
         class_=AsyncSession,
-        expire_on_commit=False,
-
+        expire_on_commit=False
     )
 
     _async_scoped_session = async_scoped_session(

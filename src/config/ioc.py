@@ -4,7 +4,7 @@ from dependency_injector import providers, containers
 class AsyncContainer(containers.DeclarativeContainer):
     from src.config.ardb.engine import session_factory, crete_engine
 
-    async_engine = providers.Singleton(crete_engine)
+    async_engine = providers.Factory(crete_engine)
     async_session = providers.Factory(session_factory, engine=async_engine)
 
 

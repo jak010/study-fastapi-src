@@ -12,6 +12,7 @@ member_router = APIRouter(tags=['Member'])
 
 @member_router.get(
     path="/member",
+    summary="사용자 조회",
     response_model=ResponseBaseModel[MemberDto]
 )
 @inject
@@ -25,7 +26,10 @@ async def member_retreieve(
     return ResponseBaseModel(data=MemberDto.of(member))
 
 
-@member_router.post(path="/member/{member_id}")
+@member_router.get(
+    path="/member/{member_id}",
+    summary="사용자 조회수 증가"
+)
 @inject
 async def member_retreieve(
         member_id=Path(),
