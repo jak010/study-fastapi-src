@@ -33,20 +33,35 @@ services:
       local_db:
         condition: service_healthy
 
+  # 🔥 CPU / Memory / Disk 수집
+  node_exporter:
+    image: prom/node-exporter
+    container_name: node_exporter
+    ports:
+      - "9100:9100"
+    command:
+      - "--path.rootfs=/host"
+    volumes:
+      - "/:/host:ro,rslave"
+
   prometheus:
     image: prom/prometheus
     container_name: prometheus
     ports:
       - "9090:9090"
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     depends_on:
       - mysql_exporter
+      - node_exporter
 
   grafana:
     image: grafana/grafana
     container_name: grafana
     ports:
       - "3000:3000"
+    volumes:
+      # 🔥 Grafana datasource 자동 등록
+      - ./grafana/provisioning:/etc/grafana/provisioning
     depends_on:
       - prometheus

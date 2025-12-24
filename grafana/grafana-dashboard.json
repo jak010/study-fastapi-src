@@ -1,0 +1,63 @@
+{
+  "uid": "mysql-system-overview",
+  "title": "MySQL System Overview (with CPU)",
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 3,
+  "refresh": "10s",
+  "tags": ["mysql", "cpu", "prometheus", "database"],
+  "templating": {
+    "list": [
+      {
+        "name": "instance",
+        "type": "query",
+        "datasource": "Prometheus",
+        "refresh": 1,
+        "query": "label_values(mysql_global_status_threads_connected, instance)",
+        "current": {}
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "CPU Usage (%)",
+      "type": "timeseries",
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 6 },
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "100 * (1 - avg(rate(node_cpu_seconds_total{mode=\"idle\"}[1m])))",
+          "legendFormat": "cpu_used"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 0,
+          "max": 100
+        }
+      }
+    },
+    {
+      "id": 2,
+      "title": "Threads Connected",
+      "type": "timeseries",
+      "gridPos": { "x": 6, "y": 0, "w": 6, "h": 6 },
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "mysql_global_status_threads_connected{instance=\"$instance\"}",
+          "legendFormat": "connected"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Threads Running",
+      "type": "timeseries",
+      "gridPos": { "x": 12, "y": 0, "w": 6, "h": 6 },
+      "datasource": "Prometheus",
+      "targets": [
+        {
+          "expr": "mysql_global_status_threads_running{
